@@ -4,7 +4,7 @@ import { useContext } from 'react'
 import DataContext from '../store/DataContext'
 import { useRouter } from 'next/router'
 
-import TradingViewWidget, { Themes } from 'react-tradingview-widget'
+// import TradingViewWidget, { Themes } from 'react-tradingview-widget'
 /* import TechnicalAnalysis, {
   THEMES,
   INTERVALS
@@ -249,8 +249,8 @@ export default function App() {
                 </p>
               )}
               <div class="bg-white ">
-                <div style={{ height: 500 }}>
-                 {bot && (
+               {/* <div style={{ height: 500 }}>
+                  {bot && (
                     <TradingViewWidget
                       // symbol="BINANCE:DOGEUSDT"
                       // symbol={`BINANCE:${bot.pair.replace('/','')}`}
@@ -261,7 +261,7 @@ export default function App() {
                     />
                   )}
                 </div>
-                 {/*     <div class="flex justify-center items-center p-10">
+                     <div class="flex justify-center items-center p-10">
                     <TechnicalAnalysis
                       symbol={'BINANCE:DOGEUSDT'}
                       dark

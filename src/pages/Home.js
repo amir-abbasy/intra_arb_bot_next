@@ -184,7 +184,11 @@ const App = () => {
                     onClick={() =>
                       router.push({
                         pathname: '/CreateBot',
-                        query: { exchange1: _.low.exchange, exchange2: _.high.exchange, market:_.pair},
+                        query: {
+                          exchange1: _.low.exchange,
+                          exchange2: _.high.exchange,
+                          market: _.pair,
+                        },
                       })
                     }
                   >
@@ -198,7 +202,15 @@ const App = () => {
             })
           )
         ) : (
-          <p class="text-center text-gray-400 mt-10">Looking markets ...</p>
+          <>
+            <p class="text-center text-gray-400 mt-10">Looking markets ...</p>
+            <div style={{ width: 200, height: 200, margin: 'auto', overflow:'hidden' }}>
+              <img
+                className="lodaing"
+                src="https://firstaidtamworth.com.au/wp-content/themes/business-gravity-pro-premium/assets/images/placeholder/kt-loader-2.gif"
+              />
+            </div>
+          </>
         )}
 
         <button

@@ -16,3 +16,8 @@
 .ListItemRowContainer:hover .hideOnHover {
   display: none;
 }
+
+
+.lodaing{
+  transform: scale(2);
+}
