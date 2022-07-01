@@ -4,7 +4,7 @@ import { useContext } from 'react'
 import DataContext from '../store/DataContext'
 import { useRouter } from 'next/router'
 
-// import TradingViewWidget, { Themes } from 'react-tradingview-widget'
+import TradingViewWidget, { Themes } from 'react-tradingview-widget'
 /* import TechnicalAnalysis, {
   THEMES,
   INTERVALS
@@ -32,7 +32,7 @@ export default function App() {
   async function updateDevicePosition() {
     var bts = localStorage.getItem(bot_storage_key)
     var bot_ = JSON.parse(bts)?.bots[0]
-    console.log('REFRESHING', bot_.market1.symbol)
+    console.log('REFRESHING', bot_?.market1?.symbol)
     try {
       const res = await fetch(
         `api/hello/?pair1=${bot_?.market1?.symbol}&pair2=${bot_?.market2?.symbol}`,
@@ -218,6 +218,7 @@ export default function App() {
                   {/* <span class="material-symbols-outlined">
                     unfold_less_double
                   </span> */}
+                  <p class="text-xs">Price diffrence</p>
                   <p class="bg-yellow-300 p-2 px-5 rounded-3xl text-sm">
                     {Math.abs(calcs?.priceDiff).toFixed(5)}
                     <sup> USDT</sup>
@@ -248,7 +249,7 @@ export default function App() {
                 </p>
               )}
               <div class="bg-white ">
-                {/*   <div style={{ height: 500 }}>
+                <div style={{ height: 500 }}>
                  {bot && (
                     <TradingViewWidget
                       // symbol="BINANCE:DOGEUSDT"
@@ -260,7 +261,7 @@ export default function App() {
                     />
                   )}
                 </div>
-                   <div class="flex justify-center items-center p-10">
+                 {/*     <div class="flex justify-center items-center p-10">
                     <TechnicalAnalysis
                       symbol={'BINANCE:DOGEUSDT'}
                       dark

@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import ccxt from 'ccxt'
 import { DropDown, Input, Header, Alert } from '../components'
 import exchanges from '../global/exchanges'
@@ -7,7 +7,11 @@ import { useRouter } from 'next/router'
 
 export default function CreateBot() {
   const [show, setShow] = useState(false)
-  const [form, setForm] = useState()
+  const [form, setForm] = useState({
+    name: 'test bot',
+    tradeAmount: '100',
+    profitPercentage: '15',
+  })
   const [alert, setAlert] = useState()
 
   const [market1exchanges, setMarket1exchanges] = useState([])
@@ -24,6 +28,31 @@ export default function CreateBot() {
     if (list == 'second')
       setMarket2exchanges(mrkts.filter((_) => _.quote == 'USDT'))
   }
+
+  useEffect(() => {
+    // router.query,
+    if (router.query?.exchange1) {
+      const prams = {
+        exchange1: {
+          id: router.query?.exchange1,
+        },
+        market1: {
+          id: router.query?.market.replace('/', ''),
+          symbol: router.query?.market,
+        },
+        exchange2: {
+          id: router.query?.exchange2,
+        },
+        market2: {
+          id: router.query?.market.replace('/', ''),
+          symbol: router.query?.market,
+        }
+      }
+      setForm({...form, ...prams})
+    }
+  }, [])
+
+
   return (
     <>
       {alert && (
@@ -39,7 +68,7 @@ export default function CreateBot() {
           }
         >
           <Input
-            placeholder="name"
+            placeholder={form?.name || 'name'}
             type="text"
             title="Bot Name"
             onChange={(val) => setForm({ ...form, name: val })}
@@ -47,7 +76,7 @@ export default function CreateBot() {
           <h1>First Market</h1>
           <DropDown
             class="w-2/5 my-5"
-            placeholder="Account"
+            placeholder={form?.exchange1?.id || 'Account'}
             title="Account"
             onChange={(val) => {
               setForm({ ...form, exchange1: val })
@@ -59,7 +88,7 @@ export default function CreateBot() {
           />
           <DropDown
             class="w-2/5 my-5"
-            placeholder="Market"
+            placeholder={form?.market1?.symbol || 'Market'}
             title="Market"
             onChange={(val) => setForm({ ...form, market1: val })}
             options={market1exchanges}
@@ -67,9 +96,19 @@ export default function CreateBot() {
           <h1>Second Market</h1>
           <DropDown
             class="w-2/5 my-5"
-            placeholder="Account"
+            placeholder={form?.exchange2?.id || 'Account'}
             title="Account"
             onChange={(val) => {
+              if (val.id == form?.exchange1.id) {
+                setAlert({
+                  show: true,
+                  title: 'Choose another exchange',
+                  type: 'error',
+                  message: val.id + ' already selected',
+                })
+              } else {
+                setAlert()
+              }
               setForm({ ...form, exchange2: val })
               loadMarkets(val, 'second')
             }}
@@ -79,19 +118,32 @@ export default function CreateBot() {
           />
           <DropDown
             class="w-2/5 my-5"
-            placeholder="Market"
+            placeholder={form?.market2?.symbol || 'Market'}
             title="Market"
-            onChange={(val) => setForm({ ...form, market2: val })}
+            onChange={(val) => {
+              if (val.id.toUpperCase() != form?.market1.id) {
+                setAlert({
+                  show: true,
+                  title: 'Pair can not be different',
+                  type: 'error',
+                  message: 'Pair must be ' + form.market1?.symbol,
+                })
+              } else {
+                setAlert()
+              }
+
+              setForm({ ...form, market2: val })
+            }}
             options={market2exchanges}
           />
           <Input
-            placeholder="100"
+            placeholder={form?.tradeAmount || '100'}
             type="text"
             title="Trade Amount"
             onChange={(val) => setForm({ ...form, tradeAmount: val })}
           />
           <Input
-            placeholder="15%"
+            placeholder={form?.profitPercentage + '%' || '15%'}
             type="text"
             title="Profit"
             onChange={(val) => setForm({ ...form, profitPercentage: val })}
@@ -107,32 +159,41 @@ export default function CreateBot() {
               //   type: 'warning',
               //   message: "Demo version can't add new Bot",
               // })
-              var STORAGE_BOT = 'bots_test'
-              var bots = localStorage.getItem(STORAGE_BOT)
-
-              if (bots) {
-                // bots = { bots: [...bots, form] }
-                // localStorage.setItem(STORAGE_BOT, JSON.stringify(bots))
-
-                // for demo
+              if (!form) {
                 setAlert({
                   show: true,
-                  title: 'Sorry!',
+                  title: 'Submition Error!',
                   type: 'warning',
-                  message: "Demo version can only add one Bot",
+                  message: 'Fill all fields!',
                 })
               } else {
-                bots = { bots: [form] }
-                setAlert({
-                  show: true,
-                  title: 'Bot created',
-                  type: 'success',
-                  message: 'Bot successfully created',
-                })
-                localStorage.setItem(STORAGE_BOT, JSON.stringify(bots))
+                var STORAGE_BOT = 'bots_test'
+                var bots = localStorage.getItem(STORAGE_BOT)
+
+                if (bots) {
+                  // bots = { bots: [...bots, form] }
+                  // localStorage.setItem(STORAGE_BOT, JSON.stringify(bots))
+
+                  // for demo
+                  setAlert({
+                    show: true,
+                    title: 'Sorry!',
+                    type: 'warning',
+                    message: 'Demo version can only create one Bot',
+                  })
+                } else {
+                  bots = { bots: [form] }
+                  setAlert({
+                    show: true,
+                    title: 'Bot created',
+                    type: 'success',
+                    message: 'Bot successfully created',
+                  })
+                  localStorage.setItem(STORAGE_BOT, JSON.stringify(bots))
+                }
+                // console.log('==', bots)
+                // router.push('/Bot')
               }
-              // console.log('==', bots)
-              // router.push('/Bot')
             }}
           >
             Create Bot

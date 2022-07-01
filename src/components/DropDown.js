@@ -72,7 +72,7 @@ function DropDown(props) {
         <ul class="absolute bg-white z-40 border overflow-y-scroll max-h-96">
           {options&&options.map((_, k) => {
             return (
-              <li>
+              <li key={k}>
                   <button class="hover:bg-blue-300 p-3 inline-flex border-b text-center "
                   style={{width: '100%'}}
                     onClick={()=>{

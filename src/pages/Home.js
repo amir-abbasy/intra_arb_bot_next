@@ -8,7 +8,7 @@ const App = () => {
   const [markets, setMarkets] = React.useState()
 
   const router = useRouter()
-  var dev = false
+  var dev = true
   const server = dev
     ? 'http://localhost:4000'
     : 'https://intra-arb-bot-test.herokuapp.com/'
@@ -142,7 +142,7 @@ const App = () => {
               return (
                 <div
                   key={k}
-                  class="border my-5 p-2 flex justify-around items-center shadow-lg shadow-blue-100 border-blue-200"
+                  class="border my-5 p-2 flex justify-around items-center shadow-lg shadow-blue-100 border-blue-200 ListItemRowContainer"
                 >
                   <span class="material-symbols-outlined mx-4">
                     currency_exchange
@@ -172,10 +172,27 @@ const App = () => {
                       {_.high.price} <sup class="xs">USDT</sup>
                     </p>
                   </div>
-                  <div class="px-5">
+                  <div class="px-5 hideOnHover">
                     <p class="text-sm text-gray-400">Price Diffrence</p>
                     <p class="text-center">{_.diff}</p>
                   </div>
+
+                  {/* Tade now button */}
+                  <button
+                    className="goToTradeButton"
+                    // class="bg-yellow-500 text-white myClassTwo"
+                    onClick={() =>
+                      router.push({
+                        pathname: '/CreateBot',
+                        query: { exchange1: _.low.exchange, exchange2: _.high.exchange, market:_.pair},
+                      })
+                    }
+                  >
+                    Trade Now
+                    <span class="material-symbols-outlined rotate-90 mx-2 ">
+                      straight
+                    </span>
+                  </button>
                 </div>
               )
             })
