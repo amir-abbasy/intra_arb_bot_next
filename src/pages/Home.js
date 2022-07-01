@@ -8,7 +8,7 @@ const App = () => {
   const [markets, setMarkets] = React.useState()
 
   const router = useRouter()
-  var dev = true
+  var dev = false
   const server = dev
     ? 'http://localhost:4000'
     : 'https://intra-arb-bot-test.herokuapp.com/'
@@ -204,7 +204,14 @@ const App = () => {
         ) : (
           <>
             <p class="text-center text-gray-400 mt-10">Looking markets ...</p>
-            <div style={{ width: 200, height: 200, margin: 'auto', overflow:'hidden' }}>
+            <div
+              style={{
+                width: 200,
+                height: 200,
+                margin: 'auto',
+                overflow: 'hidden',
+              }}
+            >
               <img
                 className="lodaing"
                 src="https://firstaidtamworth.com.au/wp-content/themes/business-gravity-pro-premium/assets/images/placeholder/kt-loader-2.gif"
