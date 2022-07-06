@@ -3,6 +3,7 @@ import { DropDown, Input, Header, TradingView } from '../components'
 import { useContext } from 'react'
 import DataContext from '../store/DataContext'
 import { useRouter } from 'next/router'
+import exchanges_list ,{getExchange} from '../global/exchanges'
 
 // import TradingViewWidget, { Themes } from 'react-tradingview-widget'
 /* import TechnicalAnalysis, {
@@ -79,6 +80,9 @@ export default function App() {
   // console.log(bot?.market1?.symbol, bot?.market2?.symbol, '////', response.data)
 
   function analyse() {
+    var ex_1_fee = (bot.tradeAmount * getExchange(bot?.exchange1.id).takerFee) / 100;
+    // var ex_2_fee = (bot.tradeAmount * getExchange(bot?.exchange2.id).fee.sell) / 100;
+
     if (response != 0) {
       var priceDiff =
         parseFloat(response.data.pair1[0][4]) -
@@ -92,10 +96,12 @@ export default function App() {
 
       setCalcs({
         priceDiff,
-        profit: profit,
+        profit: (profit-calcs?.fee_sell),
         // profit: priceDiff < 0 ? '0.00' : profit,
         loss: priceDiff < 0 ? profit : '0.00',
         prof_perc: prof_perc,
+        fee_buy: ex_1_fee,
+        fee_sell: ex_1_fee
       })
     }
   }
@@ -132,7 +138,8 @@ export default function App() {
                   <p class="font-bold text-lg mb-2">{bot?.name}</p>
                   <p class="text-sm">
                     Bot will buy or sell when profit or loss meet{' '}
-                    {calcs?.prof_perc + ` (${bot?.profitPercentage}%)`}
+                    {calcs?.prof_perc} <sup>USDT</sup>
+                    {` (${bot?.profitPercentage}%)`}{' '}
                   </p>
                 </div>
                 <div>
@@ -167,7 +174,7 @@ export default function App() {
                   <span class="material-symbols-outlined mr-4 ">
                     currency_exchange
                   </span>
-                  {bot?.exchange1.id}
+                  {bot?.exchange1?.id}
                 </p>
 
                 <span class="material-symbols-outlined text-4xl text-blue-600">
@@ -178,25 +185,23 @@ export default function App() {
                   <span class="material-symbols-outlined mr-4">
                     currency_exchange
                   </span>
-                  {bot?.exchange2.id}
+                  {bot?.exchange2?.id}
                 </p>
               </div>
 
               <div class="flex justify-around">
                 <div class="text-center">
                   <p class="font-thin text-2xl text-gray-400">
-                    {bot?.market1.symbol}
+                    {bot?.market1?.symbol}
                   </p>
                   <p class="font-thin text-2xl text-gray-400">
                     {response?.data && response.data.pair1[0][4]}
                   </p>
                 </div>
 
-         
-
                 <div class="text-center">
                   <p class="font-thin text-2xl text-gray-400">
-                    {bot?.market2.symbol}
+                    {bot?.market2?.symbol}
                   </p>
                   <p class="font-thin text-2xl text-gray-400 mr-auto">
                     {response?.data && response.data.pair2[0][4]}
@@ -215,15 +220,16 @@ export default function App() {
                   </div>
 
                   <div class="text-center">
-                  {/* <span class="material-symbols-outlined">
+                    {/* <span class="material-symbols-outlined">
                     unfold_less_double
                   </span> */}
-                  <p class="text-xs">Price diffrence</p>
-                  <p class="bg-yellow-300 p-2 px-5 rounded-3xl text-sm">
-                    {Math.abs(calcs?.priceDiff).toFixed(5)}
-                    <sup> USDT</sup>
-                  </p>
-                </div>
+                   <p>fee :  {calcs?.fee_sell}</p>
+                    <p class="text-xs">Price diffrence</p>
+                    <p class="bg-yellow-300 p-2 px-5 rounded-3xl text-sm">
+                      {Math.abs(calcs?.priceDiff).toFixed(5)}
+                      <sup> USDT</sup>
+                    </p>
+                  </div>
 
                   <div>
                     <p class="font-thin text-xl text-gray-500">Profit</p>
@@ -232,8 +238,6 @@ export default function App() {
                       <span class="text-sm">USDT</span>
                     </p>
                   </div>
-
-
 
                   {/* <div>
                     <p class="font-thin text-xl text-gray-500">On buy profilt</p>
@@ -249,7 +253,7 @@ export default function App() {
                 </p>
               )}
               <div class="bg-white ">
-               {/* <div style={{ height: 500 }}>
+                {/* <div style={{ height: 500 }}>
                   {bot && (
                     <TradingViewWidget
                       // symbol="BINANCE:DOGEUSDT"

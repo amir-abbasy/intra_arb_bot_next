@@ -3,9 +3,71 @@ import React from 'react'
 import { io } from 'socket.io-client'
 import { Header, Footer, FilterBox } from '../components'
 import exchanges from '../global/exchanges'
+import duplicate_currencies from '../global/duplicate_currencies.json'
+
+var markets_ = [
+  {
+    pair: 'COMP/USDT',
+    low: {
+      price: 46.67,
+      exchange: 'wazirx',
+    },
+    high: {
+      price: 48.02,
+      exchange: 'binance',
+    },
+    diff: '1.350',
+  },
+  {
+    pair: 'KSM/USDT',
+    low: {
+      price: 49.3,
+      exchange: 'binance',
+    },
+    high: {
+      price: 50.8,
+      exchange: 'wazirx',
+    },
+    diff: '1.500',
+  },
+  {
+    pair: 'ALCX/USDT',
+    low: {
+      price: 23.4,
+      exchange: 'binance',
+    },
+    high: {
+      price: 24.8,
+      exchange: 'wazirx',
+    },
+    diff: '1.400',
+  },
+]
+
+const filterCoin = (coins = [], expected_arb = 2) => {
+  return coins.filter((coin, k) => {
+    var diff = coin.high.price - coin.low.price
+    var arbitrage = (coin.low.price * expected_arb) / 100
+    // console.log(diff , arbitrage)
+    if (diff <= arbitrage) {
+      // console.log(
+      //   coin.pair,
+      //   '<->',
+      //   coin.low.price,
+      //   '-',
+      //   coin.high.price,
+      //   '==',
+      //   diff,
+      // )
+
+      return coin
+    }
+  })
+}
 
 const App = () => {
   const [markets, setMarkets] = React.useState()
+  const [filter, setFilter] = React.useState()
 
   const router = useRouter()
   var dev = false
@@ -19,54 +81,15 @@ const App = () => {
     socket.on('connect_error', () => {
       setTimeout(() => socket.connect(), 4000)
     })
-    socket.on('markets', (data) => setMarkets(JSON.parse(data)))
+    // socket.on('markets', (data) => setMarkets(JSON.parse(data)))
+    socket.on('markets', (data) => {
+      setMarkets(JSON.parse(data))
+      // setMarkets(filterCoin_(JSON.parse(data)))
+
+    })
     socket.on('disconnect', () => console.log('Disconnected'))
   }, [])
 
-  var markets_ = [
-    {
-      pair: 'COMP/USDT',
-      low: {
-        low_exchange: '',
-        price: 46.67,
-        exchange: 'wazirx',
-      },
-      high: {
-        high_exchange: '',
-        price: 48.02,
-        exchange: 'binance',
-      },
-      diff: '1.350',
-    },
-    {
-      pair: 'KSM/USDT',
-      low: {
-        low_exchange: '',
-        price: 49.3,
-        exchange: 'binance',
-      },
-      high: {
-        high_exchange: '',
-        price: 50.8,
-        exchange: 'wazirx',
-      },
-      diff: '1.500',
-    },
-    {
-      pair: 'ALCX/USDT',
-      low: {
-        low_exchange: '',
-        price: 23.4,
-        exchange: 'binance',
-      },
-      high: {
-        high_exchange: '',
-        price: 24.8,
-        exchange: 'wazirx',
-      },
-      diff: '1.400',
-    },
-  ]
   var account = [
     {
       title: 'Total Trading Count',
@@ -85,6 +108,9 @@ const App = () => {
       value: 2,
     },
   ]
+
+  console.log(filter)
+
   return (
     <>
       <Header />
@@ -116,18 +142,38 @@ const App = () => {
         {/* 2 */}
         <div class="flex justify-between items-center mt-10">
           <h1 class="text-2xl text-blue-500">
-            Opportunities {markets && '(' + markets.length + ')'}
+            Opportunities {markets && '(' + (filter || markets).length + ')'}
           </h1>
           <FilterBox
+            // accuracy={10 + '%'}
             onChange={(val, type) => {
               var filterMrkts = []
-              if (type == 'price') {
-                filterMrkts = markets.filter((__, k) => __.low.price < val.id)
-              } else {
-                filterMrkts = markets.filter((__, k) => __.diff < val.id)
+
+              switch (type) {
+                case 'price':
+                  filterMrkts = (filter || markets).filter(
+                    (__, k) => __.low.price < val.id,
+                  )
+                  break
+                case 'invest':
+                  filterMrkts = markets.map((__, k) => {
+                    var newFilter = { ...__, invest: val }
+                    return newFilter
+                  })
+                  break
+                case 'accuracy':
+                  break
+
+                default:
+                  filterMrkts = (filter || markets).filter(
+                    (__, k) => __.diff > val.id,
+                  )
+                  break
               }
-              setMarkets(filterMrkts)
+
+              setFilter(filterMrkts)
             }}
+            onClear={() => setFilter()}
           />
         </div>
         {markets ? (
@@ -136,13 +182,23 @@ const App = () => {
               No markets fond
             </p>
           ) : (
-            markets.map((_, k) => {
+            (filter || markets).map((_, k) => {
               var logo_low = exchanges().filter((d) => d.id == _.low.exchange)
               var logo_high = exchanges().filter((d) => d.id == _.high.exchange)
+              // var taker_fee_ex_1 = (0.2/100);
+              // var taker_fee_ex_2 = (0.2*100)/_.high.price;
+              var profit_perc =
+                (_.diff * 100) / _.low.price -
+                (logo_low[0].takerFee + logo_high[0].takerFee)
+
+              var premium =
+                profit_perc > 8
+                  ? 'bg-gradient-to-r from-indigo-300 via-red-100 to-yellow-50'
+                  : ''
               return (
                 <div
                   key={k}
-                  class="border my-5 p-2 flex justify-around items-center shadow-lg shadow-blue-100 border-blue-200 ListItemRowContainer"
+                  class={`${premium} border my-5 flex justify-around items-center shadow-lg shadow-blue-100 border-blue-200 ListItemRowContainer`}
                 >
                   <span class="material-symbols-outlined mx-4">
                     currency_exchange
@@ -151,30 +207,53 @@ const App = () => {
                     <h1 class="text-xl text-left tracking-[.25em]">{_.pair}</h1>
                   </div>
 
-                  <div class="flex border-l ml-5  border-blue-300">
-                    <p class="mr-5 bg-red-100 text-red-600 px-5 ml-2 rounded-2xl">
-                      BUY
-                    </p>
-                    <img src={logo_low[0].logo} class="mr-5" />
+                  <div class="flex bg-gradient-to-r from-red-100 via-red-50 to-white p-4 mr-10">
+                    <div>
+                      <img src={logo_low[0].logo} />
+                    </div>
                     {/* <p>{_.low.exchange}</p> */}
-                    <p class="px-2 rounded-2xl ml-2">
+                    <p class="rounded-2xl ml-2">
                       {_.low.price} <sup class="xs">USDT</sup>
                     </p>
+                    <p class="ml-5 text-red-400 rounded-2xl">BUY</p>
                   </div>
 
-                  <div class="flex ml-5 border-l border-blue-300">
-                    <p class="mr-5 bg-green-100 text-green-600 px-5 ml-2 rounded-2xl">
-                      SELL
-                    </p>
-                    <img src={logo_high[0].logo} class="mr-5" />
-                    {/* <p>{_.high.exchange}</p> */}
-                    <p class="px-2 rounded-2xl ml-2">
+                  <div class="flex bg-gradient-to-r from-green-100 via-green-50 to-white p-4 mr-10">
+                    <div>
+                      <img src={logo_high[0].logo} />
+                    </div>
+                    {/* <p>{_.low.exchange}</p> */}
+                    <p class="rounded-2xl ml-2">
                       {_.high.price} <sup class="xs">USDT</sup>
                     </p>
+                    <p class="ml-5 text-green-400 rounded-2xl">SELL</p>
                   </div>
+
                   <div class="px-5 hideOnHover">
-                    <p class="text-sm text-gray-400">Price Diffrence</p>
-                    <p class="text-center">{_.diff}</p>
+                    <p class="text-sm font-bold">
+                      <span class="text-sm font-normal text-gray-500">
+                        Price Diffrence -{' '}
+                      </span>
+                      {_.diff}
+                    </p>
+                    <p class="text-sm font-bold">
+                      <span class="text-sm font-normal text-gray-500">
+                        Profit -{' '}
+                      </span>
+                      {profit_perc.toFixed(2)}%
+                    </p>
+
+                    {_?.invest && (
+                      <p class="text-sm font-bold">
+                        <span class="text-sm font-normal text-green-500">
+                          Returns -{' '}
+                        </span>
+                        {(
+                          parseFloat(_.invest) +
+                          (parseFloat(_.invest) * parseFloat(profit_perc)) / 100
+                        ).toFixed(2)}
+                      </p>
+                    )}
                   </div>
 
                   {/* Tade now button */}
@@ -223,7 +302,6 @@ const App = () => {
         <button
           class="bg-blue-600 text-white p-3 flex hover:bg-blue-500  hover:scale-105"
           onClick={() => {
-            // ctx.setBotName({name: 'new new name'})
             router.push('CreateBot')
           }}
         >

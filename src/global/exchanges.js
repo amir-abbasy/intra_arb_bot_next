@@ -1,4 +1,4 @@
-export default () => {
+const exchanges = () => {
   return [
     {
       id: 'binance',
@@ -8,6 +8,7 @@ export default () => {
       ver: 1,
       certified: true,
       pro: false,
+      takerFee: 0.1,
     },
     {
       id: 'ftx',
@@ -17,6 +18,7 @@ export default () => {
       ver: 1,
       certified: true,
       pro: false,
+      takerFee: 0.07,
     },
     {
       id: 'bitmart',
@@ -26,6 +28,7 @@ export default () => {
       ver: 1,
       certified: true,
       pro: false,
+      takerFee: 0.25,
     },
     {
       id: 'huobi',
@@ -35,6 +38,7 @@ export default () => {
       ver: 1,
       certified: true,
       pro: false,
+      takerFee: 0.099,
     },
     {
       id: 'gate',
@@ -44,6 +48,8 @@ export default () => {
       ver: 1,
       certified: true,
       pro: false,
+      takerFee: 0.2,
+
     },
     {
       id: 'wazirx',
@@ -53,6 +59,7 @@ export default () => {
       ver: 1,
       certified: true,
       pro: false,
+      takerFee: 0.02,
     },
     {
       id: 'coinbase',
@@ -62,14 +69,65 @@ export default () => {
       ver: 1,
       certified: true,
       pro: false,
-    },{
+      takerFee: 0.6,
+
+    },
+    {
       id: 'coinbasepro',
       name: 'Coinbase Pro',
       logo:
-        'https://user-images.githubusercontent.com/1294454/40811661-b6eceae2-653a-11e8-829e-10bfadb078cf.jpg',
+        'https://user-images.githubusercontent.com/1294454/41764625-63b7ffde-760a-11e8-996d-a6328fa9347a.jpg',
       ver: 1,
       certified: true,
       pro: false,
+      takerFee: 0.6,
+    },
+    {
+      id: 'kucoin',
+      name: 'KuCoin',
+      logo:
+        'https://user-images.githubusercontent.com/51840849/87295558-132aaf80-c50e-11ea-9801-a2fb0c57c799.jpg',
+      ver: 1,
+      certified: true,
+      pro: false,
+      takerFee: 0.1,
+    },
+    {
+      id: 'mexc',
+      name: 'MEXC Global',
+      logo:
+        'https://user-images.githubusercontent.com/1294454/137283979-8b2a818d-8633-461b-bfca-de89e8c446b2.jpg',
+      ver: 1,
+      certified: true,
+      pro: false,
+      takerFee: 0.2,
+    },
+    {
+      id: 'coinex',
+      name: '	CoinEx',
+      logo:
+        'https://user-images.githubusercontent.com/51840849/87182089-1e05fa00-c2ec-11ea-8da9-cc73b45abbbc.jpg',
+      ver: 1,
+      certified: true,
+      pro: false,
+      takerFee: 0.2,
+    },
+    {
+      id: 'cryptocom',
+      name: '	Crypto.com',
+      logo:
+        'https://user-images.githubusercontent.com/1294454/147792121-38ed5e36-c229-48d6-b49a-48d05fc19ed4.jpeg',
+      ver: 1,
+      certified: true,
+      pro: false,
+      takerFee: 0.4,
     },
   ]
+}
+
+export default exchanges
+
+export const getExchange = (id) => {
+  var exchange = exchanges().filter((ex, key) => ex.id == id)
+  return exchange[0]
 }

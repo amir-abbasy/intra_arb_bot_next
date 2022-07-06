@@ -36,7 +36,7 @@ export default function Alert(props) {
   if (props.show)
     return (
       <div
-        class={`px-40 py-4 flex ${color()} justify-between items-center fixed right-0 left-0 cursor-pointer z-50`}
+        class={`px-40 py-4 flex ${color()} justify-between items-center fixed right-0 left-0 cursor-pointer z-50 top-0`}
       >
         <div>
           <h1 class="text-white">{props.title}</h1>

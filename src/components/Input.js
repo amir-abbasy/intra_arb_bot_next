@@ -15,7 +15,8 @@ export default function Input(props) {
     switch (props.type) {
       case 'text':
         render = (
-          <div class="my-5">
+          <div 
+          class={`my-5 ${props?.baseClass}`} >
             <p class="text-sm text-gray-600">
               {props?.title}
               {props?.required && <span class="text-red-600 ml-1">*</span>}
@@ -23,15 +24,40 @@ export default function Input(props) {
             <p class="text-xs text-gray-400">{props?.discription}</p>
             <input
               placeholder={props?.placeholder}
-              class="w-full bg-white p-3 px-3 my-2 shadow-md shadow-blue-100 border"
+              class={`w-full bg-white p-3 px-3 my-2 shadow-md shadow-blue-100 border ${props?.class}`}
               onChange={(e) => handleInput(e)}
+              onFocus={props?.onFocus}
+              onBlur={props?.onBlur}
+              type={props?.type}
+              
             />
           </div>
         )
-        break
+        break;
+        case 'password':
+          render = (
+            <div 
+          class={`my-5 ${props?.baseClass}`} >
+              <p class="text-sm text-gray-600">
+                {props?.title}
+                {props?.required && <span class="text-red-600 ml-1">*</span>}
+              </p>
+              <p class="text-xs text-gray-400">{props?.discription}</p>
+              <input
+                placeholder={props?.placeholder}
+                class={`w-full bg-white p-3 px-3 my-2 shadow-md shadow-blue-100 border ${props?.class}`}
+                onChange={(e) => handleInput(e)}
+                onFocus={props?.onFocus}
+                onBlur={props?.onBlur}
+                type={props?.type}
+              />
+            </div>
+          )
+          break
       default:
         render = (
-          <div class="my-5 border">
+          <div 
+          class={`my-5 border" ${props?.baseClass}`} >
             <p class="text-sm">
               {props?.title}
               {props?.required && <span class="text-red-600 ml-1">*</span>}

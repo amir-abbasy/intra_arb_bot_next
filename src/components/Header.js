@@ -2,6 +2,11 @@ import React from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 
+const styles = {
+  link: "tracking-wide hover:tracking-widest duration-75 hover:text-blue-500 cursor-pointer",
+  header: "px-10 py-5 flex justify-between shadow-sm"
+}
+
 export default function Header() {
   return (
     <>
@@ -15,36 +20,33 @@ export default function Header() {
         />
       </Head>
 
-      <header class="px-40 py-5 flex justify-between shadow-sm">
+      <header class={styles.header}>
         <div class="flex">
           <span class="material-symbols-outlined mr-5">flutter_dash</span>
           <h1 class="font-bold">Inter-Exchange Arbitrage Bot</h1>
         </div>
         <div class="w-2/5 flex justify-between">
-          <Link href="/">
-            <p
-              href="#"
-              class="hover:tracking-widest duration-75 hover:text-blue-500 cursor-pointer"
-            >
+          <Link href="/Home">
+            <p href="#" class={styles.link}>
               Home
             </p>
           </Link>
 
           <Link href="/Bot">
-            <p class="hover:tracking-widest duration-75 hover:text-blue-500 cursor-pointer ">
-              My Bots
-            </p>
+            <p class={styles.link}>My Bots</p>
           </Link>
 
           <Link href="/CreateBot">
-            <p class="hover:tracking-widest duration-75 hover:text-blue-500 cursor-pointer">
-              Create Bot
-            </p>
+            <p class={styles.link}>Create Bot</p>
           </Link>
 
           <Link href="/Exchanges">
-            <p class="hover:tracking-widest duration-75 hover:text-blue-500 cursor-pointer ">
-              My Exchanges
+            <p class={styles.link}>My Exchanges</p>
+          </Link>
+
+          <Link href="/Exchanges">
+            <p class={styles.link}>
+              <span class="material-symbols-outlined">account_circle</span>
             </p>
           </Link>
         </div>

@@ -46,12 +46,11 @@ export default function CreateBot() {
         market2: {
           id: router.query?.market.replace('/', ''),
           symbol: router.query?.market,
-        }
+        },
       }
-      setForm({...form, ...prams})
+      setForm({ ...form, ...prams })
     }
   }, [])
-
 
   return (
     <>
@@ -99,7 +98,7 @@ export default function CreateBot() {
             placeholder={form?.exchange2?.id || 'Account'}
             title="Account"
             onChange={(val) => {
-              if (val.id == form?.exchange1.id) {
+              if (form?.exchange1?.id && val.id == form?.exchange1.id) {
                 setAlert({
                   show: true,
                   title: 'Choose another exchange',
@@ -121,7 +120,10 @@ export default function CreateBot() {
             placeholder={form?.market2?.symbol || 'Market'}
             title="Market"
             onChange={(val) => {
-              if (val.id.toUpperCase() != form?.market1.id) {
+              if (
+                form?.market1?.id &&
+                val.id.toUpperCase() != form?.market1.id
+              ) {
                 setAlert({
                   show: true,
                   title: 'Pair can not be different',
@@ -159,7 +161,7 @@ export default function CreateBot() {
               //   type: 'warning',
               //   message: "Demo version can't add new Bot",
               // })
-              if (!form) {
+              if (!form?.market1 || !form?.market2) {
                 setAlert({
                   show: true,
                   title: 'Submition Error!',

@@ -19,25 +19,27 @@ export default function App() {
 
           {exchanges.map((_, k) => {
             var logo = exchanges_list().filter((d) => d.id == _)
-
+            var balance = (k + Math.random() * 40).toFixed(3).toString()
             return (
               <div class="bg-white p-5 flex justify-between border-b items-center shadow-2xl shadow-blue-300 border border-blue-100">
                 <span class="material-symbols-outlined ml-3">
                   currency_exchange
                 </span>
-                <div class="flex">
+                <div class="flex ml-5">
+                  <p class="font-bold text-lg mr-5">{logo[0].name}</p>
                   <div>
-                    <img src={logo[0].logo} class="mr-5" />
+                    <img src={logo[0].logo} />
                   </div>
-                  <p class="font-bold text-lg">{logo[0].name}</p>
                 </div>
-                <div>
-                  <p>Balance</p>
-                  <p class="font-bold">
-                    20 <span class="font-thin text-xs">USDT</span>
+
+                <p class="flex-1"></p>
+                <div class="flex items-center">
+                  <p class="text-gray-400">Balance</p>
+                  <p class="font-normal text-4xl mx-5">
+                    {balance}
+                    <sup class="font-thin text-xs">USDT</sup>
                   </p>
                 </div>
-                <p>Exchange Name</p>
               </div>
             )
           })}
@@ -51,8 +53,10 @@ export default function App() {
               : 'my-10 bg-white p-10 shadow-2xl shadow-blue-300 border-2 border-blue-100'
           }
         >
-          <DropDown class="w-2/5" placeholder="Select Exchange" 
-          options={exchanges_list()}
+          <DropDown
+            class="w-2/5"
+            placeholder="Select Exchange"
+            options={exchanges_list()}
           />
           <Input placeholder="0x4077f23..." type="text" title="Api Key" />
           <Input
