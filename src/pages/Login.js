@@ -1,6 +1,8 @@
+import axios from 'axios'
 import { useRouter } from 'next/router'
 import React, { useState } from 'react'
 import { Alert, Header, Input } from '../components'
+import config from '../global/config'
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState()
@@ -8,6 +10,34 @@ export default function Login() {
   const [alert, setAlert] = useState()
 
   const router = useRouter()
+
+  const login = async () => {
+    axios
+      .post(config.api_url+'/entry/login', {
+        username: form.username,
+        password: form.password,
+      })
+      .then(function (response) {
+        if (response.status == 200) {
+          if(response.data.status){
+            // console.log('-', response.data.status)
+            router.push('Home')
+          }else{
+            setAlert({
+              show: true,
+              title: 'Login Faild',
+              type: 'error',
+              message:  response.data.message,
+            })
+          }
+        } else {
+          console.log('err')
+        }
+      })
+      .catch(function (error) {
+        console.log(error)
+      })
+  }
 
   return (
     <>
@@ -65,6 +95,7 @@ export default function Login() {
             <button
               class="bg-blue-600 text-white p-3 px-16 mb-10 flex hover:bg-blue-500  hover:scale-105  hover:font-bold"
               onClick={() => {
+             
                 if (
                   form?.username == '' ||
                   form?.password == '' ||
@@ -78,7 +109,7 @@ export default function Login() {
                     message: 'Check fileds',
                   })
                 } else {
-                  router.push('Home')
+                  login()
                 }
               }}
             >

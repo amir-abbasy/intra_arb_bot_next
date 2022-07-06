@@ -3,7 +3,7 @@ import React from 'react'
 import { io } from 'socket.io-client'
 import { Header, Footer, FilterBox } from '../components'
 import exchanges from '../global/exchanges'
-import duplicate_currencies from '../global/duplicate_currencies.json'
+import config from '../global/config'
 
 var markets_ = [
   {
@@ -44,39 +44,13 @@ var markets_ = [
   },
 ]
 
-const filterCoin = (coins = [], expected_arb = 2) => {
-  return coins.filter((coin, k) => {
-    var diff = coin.high.price - coin.low.price
-    var arbitrage = (coin.low.price * expected_arb) / 100
-    // console.log(diff , arbitrage)
-    if (diff <= arbitrage) {
-      // console.log(
-      //   coin.pair,
-      //   '<->',
-      //   coin.low.price,
-      //   '-',
-      //   coin.high.price,
-      //   '==',
-      //   diff,
-      // )
-
-      return coin
-    }
-  })
-}
-
 const App = () => {
   const [markets, setMarkets] = React.useState()
   const [filter, setFilter] = React.useState()
-
   const router = useRouter()
-  var dev = false
-  const server = dev
-    ? 'http://localhost:4000'
-    : 'https://intra-arb-bot-test.herokuapp.com/'
-
+  
   React.useEffect(() => {
-    const socket = io(server)
+    const socket = io(config.api_url)
     socket.on('connect', () => console.log(socket.id))
     socket.on('connect_error', () => {
       setTimeout(() => socket.connect(), 4000)
@@ -85,7 +59,6 @@ const App = () => {
     socket.on('markets', (data) => {
       setMarkets(JSON.parse(data))
       // setMarkets(filterCoin_(JSON.parse(data)))
-
     })
     socket.on('disconnect', () => console.log('Disconnected'))
   }, [])
@@ -108,8 +81,6 @@ const App = () => {
       value: 2,
     },
   ]
-
-  console.log(filter)
 
   return (
     <>
@@ -145,7 +116,6 @@ const App = () => {
             Opportunities {markets && '(' + (filter || markets).length + ')'}
           </h1>
           <FilterBox
-            // accuracy={10 + '%'}
             onChange={(val, type) => {
               var filterMrkts = []
 
@@ -161,9 +131,6 @@ const App = () => {
                     return newFilter
                   })
                   break
-                case 'accuracy':
-                  break
-
                 default:
                   filterMrkts = (filter || markets).filter(
                     (__, k) => __.diff > val.id,
@@ -182,14 +149,12 @@ const App = () => {
               No markets fond
             </p>
           ) : (
-            (filter || markets).map((_, k) => {
-              var logo_low = exchanges().filter((d) => d.id == _.low.exchange)
-              var logo_high = exchanges().filter((d) => d.id == _.high.exchange)
-              // var taker_fee_ex_1 = (0.2/100);
-              // var taker_fee_ex_2 = (0.2*100)/_.high.price;
+            (filter || markets).sort((a,b)=> b.diff-a.diff).map((_, k) => {
+              var ex_low = exchanges().filter((d) => d.id == _.low.exchange)
+              var ex_high = exchanges().filter((d) => d.id == _.high.exchange)
               var profit_perc =
                 (_.diff * 100) / _.low.price -
-                (logo_low[0].takerFee + logo_high[0].takerFee)
+                (ex_low[0].takerFee + ex_high[0].takerFee)
 
               var premium =
                 profit_perc > 8
@@ -200,16 +165,20 @@ const App = () => {
                   key={k}
                   class={`${premium} border my-5 flex justify-around items-center shadow-lg shadow-blue-100 border-blue-200 ListItemRowContainer`}
                 >
-                  <span class="material-symbols-outlined mx-4">
-                    currency_exchange
-                  </span>
+                  {_.low.exchange == 'wazirx' && _.high.exchange == 'binance' || _.high.exchange == 'wazirx' && _.low.exchange == 'binance' ? (
+                    <span class="material-symbols-outlined text-yellow-500 mx-4">magic_button</span>
+                  ) : (
+                    <span class="material-symbols-outlined mx-4">
+                      currency_exchange
+                    </span>
+                  )}
                   <div class="flex-1">
                     <h1 class="text-xl text-left tracking-[.25em]">{_.pair}</h1>
                   </div>
 
-                  <div class="flex bg-gradient-to-r from-red-100 via-red-50 to-white p-4 mr-10">
+                  <div class={`flex ${!premium && 'bg-gradient-to-r from-red-100 via-red-50 to-white'} p-4 mr-10`}>
                     <div>
-                      <img src={logo_low[0].logo} />
+                      <img src={ex_low[0].logo} />
                     </div>
                     {/* <p>{_.low.exchange}</p> */}
                     <p class="rounded-2xl ml-2">
@@ -218,9 +187,10 @@ const App = () => {
                     <p class="ml-5 text-red-400 rounded-2xl">BUY</p>
                   </div>
 
-                  <div class="flex bg-gradient-to-r from-green-100 via-green-50 to-white p-4 mr-10">
+                   
+                  <div class={`flex ${!premium && 'bg-gradient-to-r from-green-100 via-green-50 to-white'} p-4 mr-10`}>
                     <div>
-                      <img src={logo_high[0].logo} />
+                      <img src={ex_high[0].logo} />
                     </div>
                     {/* <p>{_.low.exchange}</p> */}
                     <p class="rounded-2xl ml-2">
@@ -232,13 +202,13 @@ const App = () => {
                   <div class="px-5 hideOnHover">
                     <p class="text-sm font-bold">
                       <span class="text-sm font-normal text-gray-500">
-                        Price Diffrence -{' '}
+                        Price Diffrence :{' '}
                       </span>
                       {_.diff}
                     </p>
                     <p class="text-sm font-bold">
                       <span class="text-sm font-normal text-gray-500">
-                        Profit -{' '}
+                        Profit :{' '}
                       </span>
                       {profit_perc.toFixed(2)}%
                     </p>
@@ -246,7 +216,7 @@ const App = () => {
                     {_?.invest && (
                       <p class="text-sm font-bold">
                         <span class="text-sm font-normal text-green-500">
-                          Returns -{' '}
+                          Returns :{' '}
                         </span>
                         {(
                           parseFloat(_.invest) +

@@ -16,18 +16,6 @@ export default function FilterBox(props) {
   const [showFilter, setShowFilter] = useState()
   return (
     <div class="flex items-center">
-      {/* <p class="mr-2">Accuracy </p>
-        <Input
-        placeholder={props?.accuracy}
-        type="text"
-        class="w-16 mr-4"
-        onChange={(val) =>{
-          if(val < 75 && val > 10  ){
-            props?.onChange(100 - val, 'accuracy')
-          }
-        }
-        }
-      /> */}
        <p class="mr-2">Invest</p>
        <Input
         placeholder='$ 0.00'

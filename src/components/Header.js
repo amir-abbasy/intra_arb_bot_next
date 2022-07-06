@@ -44,7 +44,7 @@ export default function Header() {
             <p class={styles.link}>My Exchanges</p>
           </Link>
 
-          <Link href="/Exchanges">
+          <Link href="/Profile">
             <p class={styles.link}>
               <span class="material-symbols-outlined">account_circle</span>
             </p>

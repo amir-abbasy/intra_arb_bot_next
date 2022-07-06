@@ -1,6 +1,8 @@
 import { useRouter } from 'next/router'
+import axios from 'axios'
 import React, { useState } from 'react'
 import { Alert, Header, Input } from '../components'
+import config from '../global/config'
 
 export default function CreateAccount() {
   const [showPassword, setShowPassword] = useState()
@@ -8,7 +10,42 @@ export default function CreateAccount() {
   const [alert, setAlert] = useState()
 
   const router = useRouter()
-console.log(form);
+
+  const login = async () => {
+    axios
+      .post(config.api_url + '/entry/register', {
+        username: form.username,
+        password: form.password,
+      })
+      .then(function (response) {
+        if (response.status == 200) {
+          if (response.data.status) {
+            // console.log('-', response.data.status)
+            setAlert({
+              show: true,
+              title: 'Account created successsfully ',
+              type: 'error',
+              message: "Welcome "+ form.username,
+            })
+            router.push('Login')
+
+          } else {
+            setAlert({
+              show: true,
+              title: 'Login Faild',
+              type: 'error',
+              message: response.data.message,
+            })
+          }
+        } else {
+          console.log('err')
+        }
+      })
+      .catch(function (error) {
+        console.log(error)
+      })
+  }
+
   return (
     <>
       {alert && (
@@ -81,7 +118,11 @@ console.log(form);
           />
 
           <p class="text-sm mb-5 mt-10">
-            <a href="#" class="text-blue-400 hover:font-bold " onClick={() => router.push('/Login')}>
+            <a
+              href="#"
+              class="text-blue-400 hover:font-bold "
+              onClick={() => router.push('/Login')}
+            >
               Already have an account?
             </a>
           </p>
@@ -94,7 +135,7 @@ console.log(form);
                   form?.password == '' ||
                   form?.email == '' ||
                   form?.confirm_password == '' ||
-                  form?.confirm_password !=  form?.password ||
+                  form?.confirm_password != form?.password ||
                   !form?.username ||
                   !form?.email ||
                   !form?.password ||
@@ -107,7 +148,7 @@ console.log(form);
                     message: 'Check fileds',
                   })
                 } else {
-                  router.push('Home')
+                  login()
                 }
               }}
             >

@@ -3,7 +3,7 @@ import { DropDown, Input, Header, TradingView } from '../components'
 import { useContext } from 'react'
 import DataContext from '../store/DataContext'
 import { useRouter } from 'next/router'
-import exchanges_list ,{getExchange} from '../global/exchanges'
+import exchanges_list, { getExchange } from '../global/exchanges'
 
 // import TradingViewWidget, { Themes } from 'react-tradingview-widget'
 /* import TechnicalAnalysis, {
@@ -13,6 +13,8 @@ import exchanges_list ,{getExchange} from '../global/exchanges'
 // import { MarketOverview, TechnicalAnalysis } from 'react-ts-tradingview-widgets'
 
 import { BinanceClient } from 'ccxws'
+import Config from '../global/config'
+import axios from 'axios'
 // import net from 'net'
 
 export default function App() {
@@ -33,28 +35,15 @@ export default function App() {
   async function updateDevicePosition() {
     var bts = localStorage.getItem(bot_storage_key)
     var bot_ = JSON.parse(bts)?.bots[0]
+
     console.log('REFRESHING', bot_?.market1?.symbol)
-    try {
-      const res = await fetch(
-        `api/hello/?pair1=${bot_?.market1?.symbol}&pair2=${bot_?.market2?.symbol}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
-      )
 
-      if (!res.ok) {
-        throw new Error(`Error: ${res.status}`)
-      }
-
-      const data = await res.json()
-
-      setResponse(data)
-    } catch (e) {
-      console.error(e)
-    }
+    var url = `${Config.api_url}/crypto/fetchOHLCV?market=${bot_?.market1?.symbol}&exchange1=${bot_?.exchange1.id}&exchange2=${bot_?.exchange2.id}`
+   
+    axios.get(url).then(function (response) {
+      // console.log(bot_?.market1?.symbol, bot_?.market2?.symbol, response)
+      setResponse(response.data)
+    }).catch((err)=>console.log('CATCH ', err))
 
     clearTimeout(timer)
     setTimer(setTimeout(updateDevicePosition, 5000))
@@ -80,7 +69,8 @@ export default function App() {
   // console.log(bot?.market1?.symbol, bot?.market2?.symbol, '////', response.data)
 
   function analyse() {
-    var ex_1_fee = (bot.tradeAmount * getExchange(bot?.exchange1.id).takerFee) / 100;
+    var ex_1_fee =
+      (bot.tradeAmount * getExchange(bot?.exchange1.id).takerFee) / 100
     // var ex_2_fee = (bot.tradeAmount * getExchange(bot?.exchange2.id).fee.sell) / 100;
 
     if (response != 0) {
@@ -96,12 +86,12 @@ export default function App() {
 
       setCalcs({
         priceDiff,
-        profit: (profit-calcs?.fee_sell),
+        profit: profit - calcs?.fee_sell,
         // profit: priceDiff < 0 ? '0.00' : profit,
         loss: priceDiff < 0 ? profit : '0.00',
         prof_perc: prof_perc,
         fee_buy: ex_1_fee,
-        fee_sell: ex_1_fee
+        fee_sell: ex_1_fee,
       })
     }
   }
@@ -223,7 +213,7 @@ export default function App() {
                     {/* <span class="material-symbols-outlined">
                     unfold_less_double
                   </span> */}
-                   <p>fee :  {calcs?.fee_sell}</p>
+                    <p>fee : {calcs?.fee_sell}</p>
                     <p class="text-xs">Price diffrence</p>
                     <p class="bg-yellow-300 p-2 px-5 rounded-3xl text-sm">
                       {Math.abs(calcs?.priceDiff).toFixed(5)}
@@ -234,7 +224,7 @@ export default function App() {
                   <div>
                     <p class="font-thin text-xl text-gray-500">Profit</p>
                     <p class="font-thin text-5xl text-green-500">
-                      {calcs?.profit}
+                      {calcs?.profit.toFixed(3)}
                       <span class="text-sm">USDT</span>
                     </p>
                   </div>
